@@ -19,7 +19,7 @@ def torpedo_hit2(ship_velocity, torpedo_velocity, ax, ay):
 
     ship_velocity /= 3.6
     torpedo_velocity /= 3.6
-    dt = 1
+    dt = 0.01
 
     ship_x = [0]
     ship_y = [0]
@@ -30,7 +30,7 @@ def torpedo_hit2(ship_velocity, torpedo_velocity, ax, ay):
     while True:
         time += dt
         ship_x.append(ship_x[-1] + ship_velocity * dt)
-        ship_y.append(0)
+        ship_y.append(math.cos(ship_x[-1]**2))
 
         angle = relative_angle(torpedo_x[-1], torpedo_y[-1], ship_x[-1], ship_y[-1])
         distance = torpedo_velocity * dt
@@ -38,7 +38,8 @@ def torpedo_hit2(ship_velocity, torpedo_velocity, ax, ay):
         torpedo_x.append(mx)
         torpedo_y.append(my)
 
-        if math.hypot(ship_x[-1] - torpedo_x[-1], ship_y[-1] - torpedo_y[-1]) < 10:  # Assume hit within 10 meters
+        if math.hypot(ship_x[-1] - torpedo_x[-1], ship_y[-1] - torpedo_y[-1]) < 0.5:
+            plt.scatter(torpedo_x[-1],torpedo_y[-1],c="r", label = f"Intersect in {seconds_to_hours(time)} ")
             print(f"Hit at time: {seconds_to_hours(time)} ")
             break
 
@@ -53,4 +54,4 @@ def torpedo_hit2(ship_velocity, torpedo_velocity, ax, ay):
     plt.show()
 
 
-torpedo_hit2(70, 100, 2000, -50000)
+torpedo_hit2(70, 150, 2000, -10000)
