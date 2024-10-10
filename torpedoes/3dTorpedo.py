@@ -49,7 +49,7 @@ def torpedo_hit_3d(ship_speed, torpedo_speed, ax, ay, az):
         ship_trajectory.append(ship_pos)
 
         # Randomly change ship direction occasionally
-        if random.random() < 0.02:  # 2% chance each step
+        if random.random() < 0.2:  # 2% chance each step
             new_direction = Vector3D(random.uniform(-1, 1), random.uniform(-1, 1), 0).normalize()
             ship_vel = new_direction * ship_speed
 

@@ -30,7 +30,7 @@ def torpedo_hit2(ship_velocity, torpedo_velocity, ax, ay):
     while True:
         time += dt
         ship_x.append(ship_x[-1] + ship_velocity * dt)
-        ship_y.append(ship_y[-1] +ship_velocity * dt)
+        ship_y.append(ship_y[-1]+math.cos(ship_x[-1]))
 
         angle = relative_angle(torpedo_x[-1], torpedo_y[-1], ship_x[-1], ship_y[-1])
         distance = torpedo_velocity * dt
@@ -54,4 +54,4 @@ def torpedo_hit2(ship_velocity, torpedo_velocity, ax, ay):
     plt.show()
 
 
-torpedo_hit2(70, 150, 2000, -10000)
+torpedo_hit2(70, 150, 2000, -5000)
