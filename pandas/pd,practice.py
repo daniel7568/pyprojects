@@ -4,5 +4,4 @@ coffee = pd.read_csv("https://raw.githubusercontent.com/KeithGalli/complete-pand
 result = pd.read_parquet('./data/results.parquet')
 bios = pd.read_csv("./data/bios.csv")
 
-print(coffee)
-#print(coffee.sum([]))
+print(bios["weight_kg"].max())
