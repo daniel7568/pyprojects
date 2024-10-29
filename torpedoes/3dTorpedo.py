@@ -3,6 +3,7 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import time
 
 class Vector3D:
     def __init__(self, x, y, z):
@@ -29,7 +30,7 @@ def calculate_direction(p1, p2):
     return Vector3D(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z).normalize()
 
 def torpedo_hit_3d(ship_speed, torpedo_speed, ax, ay, az):
-    dt = 0.1  # Time step
+    dt = 0.000001  # Time step
     max_time = 300  # Maximum simulation time
     ship_pos = Vector3D(0, 0, 0)
     ship_direction = Vector3D(random.uniform(-1, 1), random.uniform(-1, 1), 0).normalize()
@@ -49,7 +50,7 @@ def torpedo_hit_3d(ship_speed, torpedo_speed, ax, ay, az):
         ship_trajectory.append(ship_pos)
 
         # Randomly change ship direction occasionally
-        if random.random() < 0.2:  # 2% chance each step
+        if random.random() < 0.000002:  # 2% chance each step
             new_direction = Vector3D(random.uniform(-1, 1), random.uniform(-1, 1), 0).normalize()
             ship_vel = new_direction * ship_speed
 
@@ -114,9 +115,10 @@ def torpedo_hit_3d(ship_speed, torpedo_speed, ax, ay, az):
     ax.set_xlim(mid_x - max_range, mid_x + max_range)
     ax.set_ylim(mid_y - max_range, mid_y + max_range)
     ax.set_zlim(az, mid_z + max_range)  # Set lower bound of z to initial torpedo z position
-
-    plt.show()
+    #plt.show()
 
 # Example usage
+start1 = time.time()
 torpedo_hit_3d(60, 70, 250, 500, -500)
-
+end = time.time()
+print(end-start1)
