@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 # Initial conditions
 target_pos = np.array([0, 0.01])
-target_vel = np.array([0, 0])
+target_vel = np.array([0.433, 0.25])
 missile_pos = np.array([8.66, 5])
 missile_vel = np.array([8.66, 5])
 target_a = 20
