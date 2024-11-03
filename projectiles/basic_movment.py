@@ -27,18 +27,38 @@ time_update = np.array([0,0,dt])
 launched = False
 hit = False
 target_a = 20
-missile_terminal_vel = 100
+terminal_vel = 100
 
-def pos_after_a(a_mag,t,v_vec,p_vec):
-    angle = np.arctan2(target_vel[1], target_vel[0])
+def pos_after_a(a_mag,v_vec,p_vec):
+    angle = np.arctan2(v_vec[1], v_vec[0])
     a_vec = np.array([a_mag * np.cos(angle), a_mag * np.sin(angle), 0])
     a_vec += grav
-    ret_tuple = (p_vec + v_vec*t +0.5*a_vec*t**2,v_vec+a_vec*t)
+    final_vel = np.array([terminal_vel* np.cos(angle),terminal_vel * np.sin(angle), 0])
+    t =  np.abs(final_vel) / np.abs(a_vec)
+    ret_tuple = (p_vec + v_vec*t +0.5*a_vec*t**2,v_vec+a_vec*t,t)
     return ret_tuple
 def equations(p_vec,v_vec):
     x_coef = np.array([v_vec[0],p_vec[0]])
     y_coef = np.array([-4.905,v_vec[1],p_vec[1]])
     return (x_coef,y_coef)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 while target_pos[1] > 0:
     # Update target position
@@ -78,10 +98,10 @@ while target_pos[1] > 0:
                                 if not hit:
                                     r_deg = deg*(pi/180)
                                     missile_vel = np.array([0.1*np.cos(r_deg),0.1*np.sin(r_deg),0])
-                                    new_pos, new_vel = pos_after_a(a,7,missile_vel,missile_pos)
+                                    new_pos, new_vel, time_a = pos_after_a(a,missile_vel,missile_pos)
                                     x_eq, y_eq = equations(new_pos,new_vel)
-                                    missile_x_values = np.polyval(x_eq, time_line+7)
-                                    missile_y_values = np.polyval(y_eq, time_line+7)
+                                    missile_x_values = np.polyval(x_eq, time_line+time_a)
+                                    missile_y_values = np.polyval(y_eq, time_line+time_a)
                                     for i in range(len(time_line)):
                                         if np.abs(target_x_values[i] - missile_x_values[i]) < 0.1 and np.abs(
                                                 target_y_values[i] - missile_y_values[i]) < 0.1:
