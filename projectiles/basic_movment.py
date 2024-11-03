@@ -29,36 +29,79 @@ hit = False
 target_a = 20
 terminal_vel = 100
 
-def pos_after_a(a_mag,v_vec,p_vec):
-    angle = np.arctan2(v_vec[1], v_vec[0])
-    a_vec = np.array([a_mag * np.cos(angle), a_mag * np.sin(angle), 0])
-    a_vec += grav
-    final_vel = np.array([terminal_vel* np.cos(angle),terminal_vel * np.sin(angle), 0])
-    t =  np.abs(final_vel) / np.abs(a_vec)
-    ret_tuple = (p_vec + v_vec*t +0.5*a_vec*t**2,v_vec+a_vec*t,t)
-    return ret_tuple
-def equations(p_vec,v_vec):
-    x_coef = np.array([v_vec[0],p_vec[0]])
-    y_coef = np.array([-4.905,v_vec[1],p_vec[1]])
-    return (x_coef,y_coef)
+#def pos_after_a(a_mag,v_vec,p_vec):
+#    angle = np.arctan2(v_vec[1], v_vec[0])
+#    a_vec = np.array([a_mag * np.cos(angle), a_mag * np.sin(angle), 0])
+#    a_vec += grav
+#    final_vel = np.array([terminal_vel* np.cos(angle),terminal_vel * np.sin(angle), 0])
+#    t =  np.abs(final_vel) / np.abs(a_vec)
+#    ret_tuple = (p_vec + v_vec*t +0.5*a_vec*t**2,v_vec+a_vec*t,t)
+#    return ret_tuple
+#def equations(p_vec,v_vec):
+#    x_coef = np.array([v_vec[0],p_vec[0]])
+#    y_coef = np.array([-4.905,v_vec[1],p_vec[1]])
+#    return (x_coef,y_coef)
 
+def predict_intercept(target_pos, target_vel, missile_pos, missile_speed):
+    """Calculate predicted intercept point using closing velocity."""
+    r = target_pos - missile_pos
+    closing_velocity = target_vel - missile_vel
 
+    # Quadratic equation coefficients
+    a = np.dot(closing_velocity, closing_velocity) - missile_speed ** 2
+    b = 2 * np.dot(r, closing_velocity)
+    c = np.dot(r, r)
 
+    # Solve quadratic equation
+    discriminant = b ** 2 - 4 * a * c
+    if discriminant < 0:
+        return None
 
+    t_intercept = (-b - np.sqrt(discriminant)) / (2 * a)
+    if t_intercept < 0:
+        return None
 
+    return target_pos + target_vel * t_intercept
 
+def calculate_guidance(missile_pos, missile_vel, target_pos, target_vel):
+    """Calculate proportional navigation guidance command."""
+    r = target_pos - missile_pos
+    v_closing = target_vel - missile_vel
 
+    # Normalized line of sight vector
+    los = r / np.linalg.norm(r)
 
+    # Calculate line of sight rate
+    los_rate = np.cross(los, np.cross(v_closing, los)) / np.linalg.norm(r)
 
+    # Navigation constant
+    N = 4
 
+    # Calculate acceleration command (perpendicular to current velocity)
+    if np.linalg.norm(missile_vel) > 0:  # Prevent division by zero
+        v_missile_norm = missile_vel / np.linalg.norm(missile_vel)
+        a_command = N * np.linalg.norm(v_closing) * np.cross(los_rate, v_missile_norm)
+    else:
+        a_command = np.zeros(3)
 
+    return a_command
 
+def apply_missile_acceleration(current_vel, desired_direction, acceleration, dt):
+    """Apply acceleration to the missile while respecting maximum speed."""
+    current_speed = np.linalg.norm(current_vel)
 
+    # Calculate acceleration vector in desired direction
+    accel_vector = acceleration * desired_direction
 
+    # Apply acceleration
+    new_vel = current_vel + accel_vector * dt
+    new_speed = np.linalg.norm(new_vel)
 
+    # Limit to maximum speed
+    if new_speed > max_missile_speed:
+        new_vel = max_missile_speed * new_vel / new_speed
 
-
-
+    return new_vel
 
 while target_pos[1] > 0:
     # Update target position
