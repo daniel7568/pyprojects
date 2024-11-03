@@ -14,6 +14,9 @@ class Vector3D:
     def __add__(self, other):
         return Vector3D(self.x + other.x, self.y + other.y, self.z + other.z)
 
+    def __sub__(self, other):
+        return Vector3D(self.x - other.x, self.y - other.y, self.z - other.z)
+
     def __mul__(self, scalar):
         return Vector3D(self.x * scalar, self.y * scalar, self.z * scalar)
 
@@ -28,7 +31,8 @@ class Vector3D:
 
 
 def calculate_direction(p1, p2):
-    return Vector3D(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z).normalize()
+#    return Vector3D(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z).normalize()
+    return (p2 - p1).normalize()
 
 
 def torpedo_hit_3d(target_speed, torpedo_speed):

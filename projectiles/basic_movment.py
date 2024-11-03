@@ -27,6 +27,7 @@ time_update = np.array([0,0,dt])
 launched = False
 hit = False
 target_a = 20
+missile_terminal_vel = 100
 
 def pos_after_a(a_mag,t,v_vec,p_vec):
     angle = np.arctan2(target_vel[1], target_vel[0])
@@ -71,7 +72,7 @@ while target_pos[1] > 0:
                     print(y_time_eq)
                     launched = True  # Launch the missile or mark as launched
                     launched_time = t
-                    for a in range (14,40):
+                    for a in range (14,60):
                         if not hit:
                             for deg in range (170,90,-1):
                                 if not hit:
@@ -91,6 +92,8 @@ while target_pos[1] > 0:
                                     break
                         else:
                             break
+                    else:
+                        print("can't hit the target")
         else:
             missile_pos = missile_pos +  missile_vel * dt + time_update
             if t -launched_time < 7:
