@@ -29,50 +29,28 @@ hit = False
 target_a = 20
 terminal_vel = 100
 
-#def pos_after_a(a_mag,v_vec,p_vec):
-#    angle = np.arctan2(v_vec[1], v_vec[0])
-#    a_vec = np.array([a_mag * np.cos(angle), a_mag * np.sin(angle), 0])
-#    a_vec += grav
-#    final_vel = np.array([terminal_vel* np.cos(angle),terminal_vel * np.sin(angle), 0])
-#    t =  np.abs(final_vel) / np.abs(a_vec)
-#    ret_tuple = (p_vec + v_vec*t +0.5*a_vec*t**2,v_vec+a_vec*t,t)
-#    return ret_tuple
-#def equations(p_vec,v_vec):
-#    x_coef = np.array([v_vec[0],p_vec[0]])
-#    y_coef = np.array([-4.905,v_vec[1],p_vec[1]])
-#    return (x_coef,y_coef)
 
-def predict_intercept(target_pos, target_vel, missile_pos, missile_vel,missile_a):
+def intercept_angle(missile_pos, missile_a,target_x_eq,target_y_eq):
     """Calculate predicted intercept point using closing velocity."""
-    r = target_pos - missile_pos
-    closing_velocity = target_vel - missile_vel
-    angle = np.arctan2(missile_vel[1], missile_vel[0])
-    missile_a_vec = np.array([missile_a * np.cos(angle), missile_a * np.sin(angle), 0])
-    missile_a_vec += grav
-    missile_x_eq = np.array([])
+    best_v = None
+    for deg in np.arange(180,90,-0.1):
+        r_deg = deg*(pi/180)
+        missile_vel = np.array([0.1 * np.cos(r_deg), 0.1 * np.sin(r_deg), 0])
+        missile_a_vec = np.array([missile_a * np.cos(r_deg), missile_a * np.sin(r_deg), 0]) + grav
+        missile_x_eq = np.array([0.5*missile_a_vec[0],missile_vel[0],missile_pos[0]])
+        missile_y_eq = np.array([0.5 * missile_a_vec[1], missile_vel[1], missile_pos[1]])
+        x_intersect_t = np.roots(np.array(missile_x_eq) - np.array(target_x_eq))
+        x_intersect_t = x_intersect_t[np.isreal(x_intersect_t)].real
+        x_intersect_t = x_intersect_t[x_intersect_t > 0]
 
+        y_intersect_t = np.roots(np.array(missile_y_eq) - np.array(target_y_eq))
+        y_intersect_t = y_intersect_t[np.isreal(y_intersect_t)].real
+        y_intersect_t = y_intersect_t[y_intersect_t > 0]
 
-
-
-
-
-
-
-    # Quadratic equation coefficients
-    a = np.dot(closing_velocity, closing_velocity) - missile_speed ** 2
-    b = 2 * np.dot(r, closing_velocity)
-    c = np.dot(r, r)
-
-    # Solve quadratic equation
-    discriminant = b ** 2 - 4 * a * c
-    if discriminant < 0:
-        return None
-
-    t_intercept = (-b - np.sqrt(discriminant)) / (2 * a)
-    if t_intercept < 0:
-        return None
-
-    return target_pos + target_vel * t_intercept
+        intersection_times = np.intersect1d(x_intersect_t, y_intersect_t)
+        if intersection_times.size > 0:
+            best_v = missile_vel
+        return best_v,missile_a_vec
 
 def calculate_guidance(missile_pos, missile_vel, target_pos, target_vel):
     """Calculate proportional navigation guidance command."""
@@ -134,8 +112,8 @@ while target_pos[1] > 0:
             if coef[0]<0:
                 acurate_count += 1
                 if acurate_count>20:
-                    x_time_eq = np.polyfit(normal_t_target_pos, normal_x_target_pos,1)
-                    y_time_eq = np.polyfit(normal_t_target_pos, normal_y_target_pos,2)
+                    target_x_eq = np.polyfit(normal_t_target_pos, normal_x_target_pos,2)
+                    target_y_eq = np.polyfit(normal_t_target_pos, normal_y_target_pos,2)
                     roots = np.roots(y_time_eq)
                     time_end = max(roots)
                     time_line = np.linspace(min(normal_t_target_pos), time_end, 5000)
@@ -147,30 +125,15 @@ while target_pos[1] > 0:
                     launched = True  # Launch the missile or mark as launched
                     launched_time = t
                     for a in range (14,60):
-                        if not hit:
-                            for deg in range (170,90,-1):
-                                if not hit:
-                                    r_deg = deg*(pi/180)
-                                    missile_vel = np.array([0.1*np.cos(r_deg),0.1*np.sin(r_deg),0])
-                                    new_pos, new_vel, time_a = pos_after_a(a,missile_vel,missile_pos)
-                                    x_eq, y_eq = equations(new_pos,new_vel)
-                                    missile_x_values = np.polyval(x_eq, time_line+time_a)
-                                    missile_y_values = np.polyval(y_eq, time_line+time_a)
-                                    for i in range(len(time_line)):
-                                        if np.abs(target_x_values[i] - missile_x_values[i]) < 0.1 and np.abs(
-                                                target_y_values[i] - missile_y_values[i]) < 0.1:
-                                            final_a = a
-                                            hit = True
-                                            break
-                                else:
-                                    break
-                        else:
-                            break
+                        missile_vel = intercept_angle(missile_pos,a,target_x_eq,target_y_eq)
+                        if missile_vel is not None:
+                            final_a = a
+
                     else:
                         print("can't hit the target")
         else:
             missile_pos = missile_pos +  missile_vel * dt + time_update
-            if t -launched_time < 7:
+            if t -launched_time < 10:
                 angle = np.arctan2( missile_vel[1],  missile_vel[0])
                 missile_a_vector = np.array([final_a * np.cos(angle), final_a * np.sin(angle), 0])
                 missile_vel = missile_vel + grav * dt + missile_a_vector * dt
