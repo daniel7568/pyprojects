@@ -125,9 +125,10 @@ while target_pos[1] > 0:
                     launched = True  # Launch the missile or mark as launched
                     launched_time = t
                     for a in range (14,60):
-                        missile_vel = intercept_angle(missile_pos,a,target_x_eq,target_y_eq)
+                        missile_vel,missile_vec = intercept_angle(missile_pos,a,target_x_eq,target_y_eq)
                         if missile_vel is not None:
-                            final_a = a
+
+
 
                     else:
                         print("can't hit the target")
