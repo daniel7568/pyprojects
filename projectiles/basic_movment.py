@@ -42,10 +42,21 @@ terminal_vel = 100
 #    y_coef = np.array([-4.905,v_vec[1],p_vec[1]])
 #    return (x_coef,y_coef)
 
-def predict_intercept(target_pos, target_vel, missile_pos, missile_speed):
+def predict_intercept(target_pos, target_vel, missile_pos, missile_vel,missile_a):
     """Calculate predicted intercept point using closing velocity."""
     r = target_pos - missile_pos
     closing_velocity = target_vel - missile_vel
+    angle = np.arctan2(missile_vel[1], missile_vel[0])
+    missile_a_vec = np.array([missile_a * np.cos(angle), missile_a * np.sin(angle), 0])
+    missile_a_vec += grav
+    missile_x_eq = np.array([])
+
+
+
+
+
+
+
 
     # Quadratic equation coefficients
     a = np.dot(closing_velocity, closing_velocity) - missile_speed ** 2
