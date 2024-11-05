@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from numpy.linalg import solve
 from typing import Tuple, Optional
 
 #conditions and vectors
@@ -60,12 +59,12 @@ def find_intercept_time(missile_pos: np.ndarray,
     time_to_max_speed = max_speed / missile_accel_mag
 
     intercept_times = []
-    for i in range(3):
-        a = 0.5 * missile_accel_mag * direction[i] - 0.5 * (target_accel[i] + grav[i])
-        b = -target_vel[i]
-        c = missile_pos[i] - target_pos[i]
 
-        t1, t2 = solve_quadratic(a, b, c)
+    a = 0.5 * missile_accel_mag * direction[i] - 0.5 * (target_accel[i] + grav[i])
+    b = -target_vel[i]
+    c = missile_pos[i] - target_pos[i]
+
+    t1, t2 = solve_quadratic(a, b, c)
         if t1 is not None and 0 <= t1 <= time_to_max_speed:
             intercept_times.append(t1)
         if t2 is not None and 0 <= t2 <= time_to_max_speed:
