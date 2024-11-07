@@ -33,18 +33,15 @@ target_a = 20
 terminal_speed = 200
 
 
-def solve_quadratic(a: float, b: float, c: float) -> Tuple[Optional[float], Optional[float]]:
+def solve_quadratic(a:np.ndarray, b:np.ndarray, c:np.ndarray) -> Tuple[Optional[float], Optional[float]]:
     """
     Solve quadratic equation ax^2 + bx + c = 0
     Returns tuple of solutions (t1, t2), where None indicates no real solution
     """
     # Handle zero division case
     if abs(a) < 1e-10:  # Small threshold for numerical stability
-        if abs(b) < 1e-10:
-            return None, None
-        t = -c / b
-        return t, t
-
+        return None,None
+    t = -c/b
     discriminant = b * b - 4 * a * c
     if discriminant < 0:
         return None, None
@@ -71,16 +68,15 @@ def find_intercept_time(missile_pos: np.ndarray,
 
     # First check acceleration phase
     intercept_times = []
-    for i in range(3):
-        a = 0.5 * missile_accel_mag * direction[i] - 0.5 * (target_accel[i] + grav[i])
-        b = -target_vel[i]
-        c = missile_pos[i] - target_pos[i]
+    a = 0.5 * missile_accel_mag * direction - 0.5 * (target_accel + grav)
+    b:np.ndarray = -target_vel
+    c = missile_pos - target_pos
 
-        t1, t2 = solve_quadratic(a, b, c)
-        if t1 is not None and 0 <= t1 <= time_to_max_speed:
-            intercept_times.append(t1)
-        if t2 is not None and 0 <= t2 <= time_to_max_speed:
-            intercept_times.append(t2)
+    t1, t2 = solve_quadratic(a, b, c)
+    if t1 is not None and 0 <= t1 <= time_to_max_speed:
+        intercept_times.append(t1)
+    if t2 is not None and 0 <= t2 <= time_to_max_speed:
+        intercept_times.append(t2)
 
     if intercept_times:
         for t in sorted(intercept_times):
@@ -93,16 +89,15 @@ def find_intercept_time(missile_pos: np.ndarray,
     pos_at_max_speed = missile_pos + direction * (0.5 * missile_accel_mag * time_to_max_speed ** 2)
     intercept_times = []
 
-    for i in range(3):
-        a = -0.5 * (target_accel[i] + grav[i])
-        b = direction[i] * max_speed - target_vel[i]
-        c = pos_at_max_speed[i] - target_pos[i] - direction[i] * max_speed * time_to_max_speed
+    a = -0.5 * (target_accel + grav)
+    b = direction * max_speed - target_vel
+    c = pos_at_max_speed - target_pos - direction * max_speed * time_to_max_speed
 
-        t1, t2 = solve_quadratic(a, b, c)
-        if t1 is not None and t1 > time_to_max_speed:
-            intercept_times.append(t1)
-        if t2 is not None and t2 > time_to_max_speed:
-            intercept_times.append(t2)
+    t1, t2 = solve_quadratic(a, b, c)
+    if t1 is not None and t1 > time_to_max_speed:
+        intercept_times.append(t1)
+    if t2 is not None and t2 > time_to_max_speed:
+        intercept_times.append(t2)
 
     for t in sorted(intercept_times):
         missile_pos_t = pos_at_max_speed + direction * max_speed * (t - time_to_max_speed)
