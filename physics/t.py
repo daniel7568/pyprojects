@@ -1,18 +1,32 @@
 import matplotlib.pyplot as plt
-x1= [0,30,40,60]
-y1=[20,80,80,60]
+import numpy as np
+import pandas as pd
+t = list(range(0,65,5))
+x =[0,0,100,300,700,1200,1900,2700,3700,5000,6300,7800,9200]
 
-x2=[0,10]
-y2=[0,10]
+dt = [0]
+dx = [0]
+vel = [0]
 
-x3=[0,1,2,3,4,5,6,7]
-y3=[0,0.5,1,1.5,2.5,4,6,10]
+for i in range(len(t)-1):
+    dt.append(t[i+1]-t[i])
+    dx.append(x[i+1]-x[i])
+for i in range(len(t)-1):
+    vel.append((x[i+1]-x[i])/(t[i+1]-t[i]))
 
-plt.plot([-20,100],[0,0],"k",)
-plt.plot([0,0],[-20,100],"k")
-plt.plot(x1,y1,label = "")
+coef = np.polyfit(t,x,2)
+line_x = np.linspace(0,60,200)
+line_y = np.polyval(coef,line_x)
+
+table = pd.dataframe()
+print(coef)
+#plt.plot([-20,100],[0,0],"k",)
+#plt.plot([0,0],[-20,100],"k")
+#plt.scatter(t,x,label = "")
+#plt.plot(line_x,line_y,label = f"speed is {coef[0]}")
 #plt.plot(x2,y2,label = "ג")
 #plt.plot(x3,y3,label = "ד")
+plt.plot(t,vel)
 plt.legend()
 plt.grid(True)
 plt.show()
