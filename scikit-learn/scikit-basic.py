@@ -8,7 +8,7 @@ not_voted_trump = data[data['share_voters_voted_trump']<0.5]
 
 filter_data = data.dropna()
 y = filter_data["avg_hatecrimes_per_100k_fbi"]
-X = filter_data.drop(columns = ["avg_hatecrimes_per_100k_fbi","hate_crimes_per_100k_splc","state"])
+X = filter_data.drop(columns = ["avg_hatecrimes_per_100k_fbi","hate_crimes_per_100k_splc","state",])
 
 print(X.head())
 print(y.head())
