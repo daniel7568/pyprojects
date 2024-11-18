@@ -1,8 +1,9 @@
 import pandas as pd
 from pandas.io.sas.sas_constants import column_data_length_offset
 from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
 
-data = pd.read_csv(r"C:\Users\danie\PycharmProjects\pyprojects\scikit-learn\data_files\hate_crimes.csv")
+data = pd.read_csv(r"data_files/hate_crimes.csv")
 voted_trump = data[data['share_voters_voted_trump']>0.5]
 not_voted_trump = data[data['share_voters_voted_trump']<0.5]
 
@@ -12,8 +13,12 @@ X = filter_data.drop(columns = ["avg_hatecrimes_per_100k_fbi","hate_crimes_per_1
 
 print(X.head())
 print(y.head())
+print(Pipeline.__doc__)
 
+pipe = Pipeline([
+    LinearRegression()
+])
 
 model = LinearRegression()
-model.fit(X,y)
+pipe.fit(X,y)
 print(model.score(X, y))
