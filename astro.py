@@ -1,9 +1,10 @@
-import numpy as np
-ar = np.array([1,"hay"])
-lst = [1,4,True,[1,4,5]]
-print(lst[-1][0])
-lst[0] = 6
-print(lst)
-def func()->None:
-    """this is the doc"""
+x = [1,2,3,4,5]
+y = [6,7,8,9,10]
+z = zip(1,5)
+print(z)
+
+
+
+
+
 
