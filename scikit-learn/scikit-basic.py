@@ -15,10 +15,10 @@ print(X.head())
 print(y.head())
 print(Pipeline.__doc__)
 
-pipe = Pipeline(
-
-)
+pipe = Pipeline([
+    LinearRegression()
+])
 
 model = LinearRegression()
-model.fit(X,y)
+pipe.fit(X,y)
 print(model.score(X, y))
