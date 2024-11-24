@@ -37,15 +37,15 @@ def intercept_angle(missile_a,missile_pos,target_x,target_y,time):
     coef_y = np.polyfit(time, target_y,2)
     target_x = lambda t:coef_x[0]*t+coef_x[1]
     target_y = lambda t:coef_y[0]*t**2+coef_y[1]*t+coef_y[2]
-    for deg in np.arange(np.pi,np.pi/2,0.1):
+    for deg in np.arange(np.pi,np.pi/2,-0.1):
         missile_vel = np.array([0.1*np.cos(deg),0.1*np.sin(deg),0])
         missile_a = np.array([missile_a*np.cos(deg),missile_a*np.sin(deg),0])
         missile_x = lambda t: 0.5*missile_a[0]*t**2+missile_vel[0]*t+missile_pos[0]
         missile_y = lambda t: 0.5 * missile_a[1] * t ** 2 + missile_vel[1] * t + missile_pos[1]
-        final_x = lambda t: missile_x(t)-target_x(t)
-        final_y = lambda t: missile_y(t)-target_y(t)
-        intercept_t = fsolve((final_x,final_y),np.array([0]))[0]
-        if intercept_t > 0 and missile_x(intercept_t)>0 and missile_y(intercept_t)>0:
+        distence = lambda t: np.sqrt(
+            (missile_x(t)-target_x(t))**2 + (missile_y(t)-target_y(t))**2) -1
+        intercept_t = fsolve(distence,np.array([0]))[0]
+        if intercept_t > 0 and missile_x(intercept_t)>0 and missile_y(intercept_t)>0 and 0<=distence(intercept_t)<=1:
             return deg, missile_vel, missile_a
     else:
         return None,None,None
