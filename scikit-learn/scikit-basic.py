@@ -13,12 +13,12 @@ X = filter_data.drop(columns = ["avg_hatecrimes_per_100k_fbi","hate_crimes_per_1
 
 print(X.head())
 print(y.head())
-print(Pipeline.__doc__)
 
-pipe = Pipeline([
-    LinearRegression()
-])
+pipe = Pipeline(
+    [
+        LinearRegression,
+    ]
+)
 
-model = LinearRegression()
 pipe.fit(X,y)
-print(model.score(X, y))
+print(pipe.score(X, y))
