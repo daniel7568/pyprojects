@@ -1,17 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from numpy.linalg import solve
-from typing import Tuple, Optional
-import numpy.polynomial.polynomial as poly
 from scipy.optimize import fsolve
-
-
-from projectiles.basic_movment import intercept_times
 
 # conditions and vectors
 target_pos = np.array([0, 0.01, 0])
 target_vel = np.array([0.433, 0.25, 0])
-missile_pos = np.array([1000, 0, 0])
+missile_pos = np.array([2000, 0, 0])
 missile_vel = np.array([0, 0, 0])
 grav = np.array([0, -9.81, 0])
 
@@ -35,8 +29,8 @@ launched = False
 hit = False
 target_a = 20
 terminal_speed = 200
-
-
+deg = None
+missile_a = 0
 
 def intercept_angle(missile_a,missile_pos,target_x,target_y,time):
     coef_x = np.polyfit(time,target_x,1)
@@ -50,10 +44,11 @@ def intercept_angle(missile_a,missile_pos,target_x,target_y,time):
         missile_y = lambda t: 0.5 * missile_a[1] * t ** 2 + missile_vel[1] * t + missile_pos[1]
         final_x = lambda t: missile_x(t)-target_x(t)
         final_y = lambda t: missile_y(t)-target_y(t)
-        intercept_t = fsolve((final_x,final_y),0)[0]
+        intercept_t = fsolve((final_x,final_y),np.array([0]))[0]
         if intercept_t > 0 and missile_x(intercept_t)>0 and missile_y(intercept_t)>0:
             return deg, missile_vel, missile_a
-
+    else:
+        return None,None,None
 
 # Main simulation loop
 while target_pos[1] > 0:
@@ -84,31 +79,19 @@ while target_pos[1] > 0:
 
                             # Try different acceleration magnitudes
                             for a in range(60, 110):
-                                launch_angle = intercept_angle(
-                                    missile_pos, a, terminal_speed,
-                                    target_pos, target_vel, np.array([0, 0, 0]), grav
-                                )
-                                if launch_angle is not None:
-                                    time_to_max_speed = terminal_speed / a
-                                    missile_a_vec = np.array([
-                                        a * np.cos(launch_angle),
-                                        a * np.sin(launch_angle),
-                                        0
-                                    ])
+                                deg, missile_vel,missile_a = intercept_angle(
+                                    a, missile_pos, normal_x_target_pos,
+                                normal_y_target_pos, normal_t_target_pos)
+                                if deg is not None:
                                     break
-
-                            if time_to_max_speed is None:
-                                print("Can't hit the target")
-                                break  # Exit the main simulation loop
+                            else:
+                                print("can't hit")
                 except Warning:
                     pass  # Ignore warnings from polyfit
 
-        elif missile_a_vec is not None:  # Only simulate missile if launch was successful
-            missile_pos = missile_pos + missile_vel * dt + time_update
-            if t - launched_time < time_to_max_speed:
-                missile_vel = missile_vel + grav * dt + missile_a_vec * dt
-            else:
-                missile_vel = missile_vel + grav * dt
+        elif deg is not None:
+            missile_pos += + missile_vel * dt + time_update
+            missile_vel +=  grav * dt + missile_a * dt
             x_missile_pos.append(missile_pos[0])
             y_missile_pos.append(missile_pos[1])
 
@@ -118,7 +101,7 @@ while target_pos[1] > 0:
     t += dt
 
 plt.figure(figsize=(10, 6))
-if x_missile_pos:  # Only plot missile if it was launched
+if deg is not None:
     plt.scatter(x_missile_pos, y_missile_pos, c="k", label="Missile Path", s=1)
 plt.plot(x_target_pos, y_target_pos, 'r-', label="Target Path")
 plt.xlabel("X Position (m)")
@@ -127,3 +110,4 @@ plt.legend()
 plt.title("Target and Missile Trajectories")
 plt.grid(True)
 plt.show()
+print(t)
