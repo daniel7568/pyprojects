@@ -42,10 +42,10 @@ def intercept_angle(missile_a,missile_pos,target_x,target_y,time):
         missile_a = np.array([missile_a*np.cos(deg),missile_a*np.sin(deg),0])
         missile_x = lambda t: 0.5*missile_a[0]*t**2+missile_vel[0]*t+missile_pos[0]
         missile_y = lambda t: 0.5 * missile_a[1] * t ** 2 + missile_vel[1] * t + missile_pos[1]
-        distence = lambda t: np.sqrt(
-            (missile_x(t)-target_x(t))**2 + (missile_y(t)-target_y(t))**2) -1
-        intercept_t = fsolve(distence,np.array([0]))[0]
-        if intercept_t > 0 and missile_x(intercept_t)>0 and missile_y(intercept_t)>0 and 0<=distence(intercept_t)<=1:
+        distance = lambda t: np.sqrt(
+            (missile_x(t)-target_x(t))**2 + (missile_y(t)-target_y(t))**2)
+        intercept_t = minimize_scalar(distance)
+        if intercept_t > 0 and missile_x(intercept_t)>0 and missile_y(intercept_t)>0 and 0<=distance(intercept_t)<=1:
             return deg, missile_vel, missile_a
     else:
         return None,None,None
