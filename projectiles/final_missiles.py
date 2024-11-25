@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import fsolve
+from scipy.optimize import minimize_scalar
 
 # conditions and vectors
 target_pos = np.array([0, 0.01, 0])
