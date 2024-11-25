@@ -1,15 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize_scalar
+from matplotlib.colors import PowerNorm
 
-# conditions and vectors
 target_pos = np.array([0, 0.01, 0])
 target_vel = np.array([0.433, 0.25, 0])
 missile_pos = np.array([2000, 0, 0])
 missile_vel = np.array([0, 0, 0])
 grav = np.array([0, -9.81, 0])
 
-# Lists
 x_target_pos = [target_pos[0]]
 y_target_pos = [target_pos[1]]
 t_target_pos = [target_pos[2]]
@@ -18,8 +17,8 @@ normal_y_target_pos = []
 normal_t_target_pos = []
 x_missile_pos = []
 y_missile_pos = []
+t_missile_pos = []
 
-# starting values
 t = 0
 acurate_count = 0
 dt = 0.001
@@ -32,23 +31,23 @@ terminal_speed = 200
 deg = None
 missile_a = 0
 
-def intercept_angle(missile_a,missile_pos,target_x,target_y,time):
+def intercept_angle(missile_a_mag,missile_pos,target_x,target_y,time,lunched_time):
     coef_x = np.polyfit(time,target_x,1)
     coef_y = np.polyfit(time, target_y,2)
     target_x = lambda t:coef_x[0]*t+coef_x[1]
     target_y = lambda t:coef_y[0]*t**2+coef_y[1]*t+coef_y[2]
-    for deg in np.arange(np.pi,np.pi/2,-0.1):
+    for deg in np.linspace(np.pi, np.pi / 2, 100):
         missile_vel = np.array([0.1*np.cos(deg),0.1*np.sin(deg),0])
-        missile_a = np.array([missile_a*np.cos(deg),missile_a*np.sin(deg),0])
-        missile_x = lambda t: 0.5*missile_a[0]*t**2+missile_vel[0]*t+missile_pos[0]
-        missile_y = lambda t: 0.5 * missile_a[1] * t ** 2 + missile_vel[1] * t + missile_pos[1]
+        missile_a = np.array([missile_a_mag*np.cos(deg),missile_a_mag*np.sin(deg),0])
+        missile_x = lambda t: 0.5*missile_a[0]*(t-lunched_time)**2+missile_vel[0]*(t-lunched_time)+missile_pos[0]
+        missile_y = lambda t: 0.5 * missile_a[1] * (t-lunched_time) ** 2 + missile_vel[1] * (t-lunched_time) + missile_pos[1]
         distance = lambda t: np.sqrt(
             (missile_x(t)-target_x(t))**2 + (missile_y(t)-target_y(t))**2)
-        intercept_t = minimize_scalar(distance)
-        if intercept_t > 0 and missile_x(intercept_t)>0 and missile_y(intercept_t)>0 and 0<=distance(intercept_t)<=1:
-            return deg, missile_vel, missile_a
+        intercept_t = minimize_scalar(distance,bounds=(0,500), method='bounded')
+        if intercept_t.x > 0 and missile_x(intercept_t.x)>0 and missile_y(intercept_t.x)>0 and 0<=intercept_t.fun<=1:
+            return deg, missile_vel, missile_a, intercept_t.x, missile_x(intercept_t.x),missile_y(intercept_t.x)
     else:
-        return None,None,None
+        return None,None,None,None,None,None
 
 # Main simulation loop
 while target_pos[1] > 0:
@@ -65,7 +64,6 @@ while target_pos[1] > 0:
             normal_t_target_pos.append(target_pos[2])
             v_angle = np.arctan2(target_vel[1], target_vel[0])
 
-            # Only attempt polyfit if we have enough points
             if len(normal_x_target_pos) > 5:
                 try:
                     coef = np.polyfit(normal_x_target_pos, normal_y_target_pos, 2)
@@ -74,39 +72,45 @@ while target_pos[1] > 0:
                         if acurate_count > 2:
                             launched = True
                             launched_time = t
+                            missile_pos = missile_pos + np.array([0,0,launched_time])
                             time_to_max_speed = None
                             missile_a_vec = None
 
                             # Try different acceleration magnitudes
                             for a in range(60, 110):
-                                deg, missile_vel,missile_a = intercept_angle(
+                                deg, missile_vel,missile_a,hit_time,x,y = intercept_angle(
                                     a, missile_pos, normal_x_target_pos,
-                                normal_y_target_pos, normal_t_target_pos)
+                                normal_y_target_pos, normal_t_target_pos,lunched_time=launched_time)
                                 if deg is not None:
                                     break
                             else:
                                 print("can't hit")
                 except Warning:
-                    pass  # Ignore warnings from polyfit
+                    pass
 
         elif deg is not None:
-            missile_pos += + missile_vel * dt + time_update
-            missile_vel +=  grav * dt + missile_a * dt
+            missile_pos = missile_pos + missile_vel * dt + time_update
+            missile_vel += missile_a * dt
             x_missile_pos.append(missile_pos[0])
             y_missile_pos.append(missile_pos[1])
+            t_missile_pos.append(missile_pos[2])
 
     x_target_pos.append(target_pos[0])
     y_target_pos.append(target_pos[1])
     t_target_pos.append(target_pos[2])
     t += dt
 
+norm_global = PowerNorm(gamma=1, vmin=0, vmax= max(t_target_pos))
 plt.figure(figsize=(10, 6))
-if deg is not None:
-    plt.scatter(x_missile_pos, y_missile_pos, c="k", label="Missile Path", s=1)
-plt.plot(x_target_pos, y_target_pos, 'r-', label="Target Path")
+plt.scatter(x_missile_pos, y_missile_pos,  label="Missile Path", c=t_missile_pos, cmap='inferno', s=5, norm=norm_global)
+plt.scatter(x_target_pos, y_target_pos,  label="Target Path",c=t_target_pos, cmap='inferno', s=5, norm=norm_global)
+plt.scatter(x,y,c='k',label="hit point",s=30)
 plt.xlabel("X Position (m)")
 plt.ylabel("Y Position (m)")
 plt.legend()
+plt.colorbar(label='Time (s)')
+plt.ylim(top = max(y_target_pos)+20,bottom=-20)
+plt.xlim(left=-20)
 plt.title("Target and Missile Trajectories")
 plt.grid(True)
 plt.show()
