@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
-from scipy.optimize import minimize_scalar
+from scipy.optimize import minimize
 from matplotlib.colors import PowerNorm
 
 target_pos = np.array([0, 0.01, 0, 0])
@@ -42,21 +42,15 @@ def intercept_angle(missile_a_mag,missile_pos,target_x,target_y,target_z,time,lu
     target_x = lambda t:coef_x[0]*t+coef_x[1]
     target_y = lambda t:coef_y[0]*t**2+coef_y[1]*t+coef_y[2]
     target_z = lambda t:coef_z[0]*t+coef_z[1]
-    for deg_y in np.linspace(np.pi, np.pi / 2, 50):
-        cos_y = np.cos(deg_y)
-        sin_y = np.sin(deg_y)
-        for deg_z in np.linspace(np.pi,-np.pi,150):
-            sin_z = np.sin(deg_z)
-            missile_vel = np.array([0.1*cos_y,0.1*sin_y,0.1*sin_z,0])
-            missile_a = np.array([missile_a_mag*cos_y,missile_a_mag*sin_y,missile_a_mag*sin_z,0])
-            missile_x = lambda t: 0.5*missile_a[0]*(t-lunched_time)**2+missile_vel[0]*(t-lunched_time)+missile_pos[0]
-            missile_y = lambda t: 0.5 * missile_a[1] * (t-lunched_time) ** 2 + missile_vel[1] * (t-lunched_time) + missile_pos[1]
-            missile_z = lambda t: 0.5*missile_a[2]*(t-lunched_time)**2+missile_vel[2]*(t-lunched_time)+missile_pos[2]
-            distance = lambda t: np.sqrt(
-                (missile_x(t)-target_x(t))**2 + (missile_y(t)-target_y(t))**2 + (missile_z(t)-target_z(t))**2)
-            intercept_t = minimize_scalar(distance,bounds=(0,50), method='bounded')
-            if intercept_t.x > 0 and missile_x(intercept_t.x)>0 and missile_y(intercept_t.x)>0 and 0<=intercept_t.fun<=2:
-                return deg, missile_vel, missile_a, intercept_t.x, missile_x(intercept_t.x),missile_y(intercept_t.x), missile_z(intercept_t.x)
+    missile_x = lambda t, deg: 0.5 * missile_a_mag * np.cos(deg) * (t - lunched_time) ** 2 + missile_pos[0]
+    missile_y = lambda t, deg: 0.5 * (missile_a_mag * np.sin(deg) - 9.81) * (t - lunched_time) ** 2 + missile_pos[1]
+    missile_z = lambda t, deg: 0.5 * missile_a_mag * np.sin(deg) * (t - lunched_time) ** 2 + missile_pos[2]
+    distance = lambda td: np.sqrt(
+        (missile_x(td[0],td[1]) - target_x([0])) ** 2 + (missile_y(td[0],td[1]) - target_y([0])) ** 2 + (missile_z(td[0],td[2]) - target_z([0])) ** 2)
+    intercept = minimize(distance, x0=np.array([15, np.pi / 1.5,np.pi/4]), bounds=[(0, 30), (np.pi / 2, np.pi),(-np.pi,np.pi)],
+                         method='L-BFGS-B', options={'maxiter': 1000})
+    if intercept_t.x > 0 and missile_x(intercept_t.x)>0 and missile_y(intercept_t.x)>0 and 0<=intercept_t.fun<=2:
+        return deg, missile_vel, missile_a, intercept_t.x, missile_x(intercept_t.x),missile_y(intercept_t.x), missile_z(intercept_t.x)
     else:
         return None,None,None,None,None,None,None
 
@@ -98,7 +92,7 @@ while target_pos[1] > 0:
                 pass
     elif deg is not None:
         missile_pos = missile_pos + missile_vel * dt + time_update
-        missile_vel += missile_a * dt
+        missile_vel = missile_vel + missile_a * dt
         x_missile_pos.append(missile_pos[0])
         y_missile_pos.append(missile_pos[1])
         z_missile_pos.append(missile_pos[2])
