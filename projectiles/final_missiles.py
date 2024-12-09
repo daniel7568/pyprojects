@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import minimize_scalar
+from scipy.optimize import minimize
 from matplotlib.colors import PowerNorm
 
 target_pos = np.array([0, 0.01, 0])
@@ -36,6 +36,19 @@ def intercept_angle(missile_a_mag,missile_pos,target_x,target_y,time,lunched_tim
     coef_y = np.polyfit(time, target_y,2)
     target_x = lambda t:coef_x[0]*t+coef_x[1]
     target_y = lambda t:coef_y[0]*t**2+coef_y[1]*t+coef_y[2]
+    missile_x = lambda t,deg: 0.5 * missile_a_mag*np.cos(deg) * (t - lunched_time) ** 2 + missile_pos[0]
+    missile_y = lambda t,deg: 0.5 * (missile_a_mag*np.cos(deg)-grav[1]) * (t - lunched_time) ** 2 + missile_pos[1]
+    distance = lambda t,deg: np.sqrt(
+        (missile_x(t,deg) - target_x(t)) ** 2 + (missile_y(t,deg) - target_y(t)) ** 2)
+    intercept = minimize(distance, x0 = np.array([5,np.pi/3]) , bounds=[(0, 50),(np.pi,np.pi/2)], method='bounded')
+    if missile_x(intercept.x[0],intercept[1]) > 0 and missile_y(
+            intercept.x[0],intercept[1]) > 0 and 0 <= intercept.fun <= 1:
+        return deg, missile_vel, missile_a, intercept_t.x, missile_x(intercept_t.x), missile_y(intercept_t.x)
+    else:
+        return None,None,None,None,None,None
+
+
+
     for deg in np.linspace(np.pi, np.pi / 2, 100):
         missile_vel = np.array([0.1*np.cos(deg),0.1*np.sin(deg),0])
         missile_a = np.array([missile_a_mag*np.cos(deg),missile_a_mag*np.sin(deg),0])
