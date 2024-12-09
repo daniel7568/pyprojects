@@ -37,30 +37,17 @@ def intercept_angle(missile_a_mag,missile_pos,target_x,target_y,time,lunched_tim
     target_x = lambda t:coef_x[0]*t+coef_x[1]
     target_y = lambda t:coef_y[0]*t**2+coef_y[1]*t+coef_y[2]
     missile_x = lambda t,deg: 0.5 * missile_a_mag*np.cos(deg) * (t - lunched_time) ** 2 + missile_pos[0]
-    missile_y = lambda t,deg: 0.5 * (missile_a_mag*np.cos(deg)-grav[1]) * (t - lunched_time) ** 2 + missile_pos[1]
-    distance = lambda t,deg: np.sqrt(
-        (missile_x(t,deg) - target_x(t)) ** 2 + (missile_y(t,deg) - target_y(t)) ** 2)
-    intercept = minimize(distance, x0 = np.array([5,np.pi/3]) , bounds=[(0, 50),(np.pi,np.pi/2)], method='bounded')
-    if missile_x(intercept.x[0],intercept[1]) > 0 and missile_y(
-            intercept.x[0],intercept[1]) > 0 and 0 <= intercept.fun <= 1:
-        return deg, missile_vel, missile_a, intercept_t.x, missile_x(intercept_t.x), missile_y(intercept_t.x)
+    missile_y = lambda t,deg: 0.5 * (missile_a_mag*np.sin(deg)-9.81) * (t - lunched_time) ** 2 + missile_pos[1]
+    distance = lambda td: np.sqrt(
+        (missile_x(td[0],td[1]) - target_x(td[0])) ** 2 + (missile_y(td[0],td[1]) - target_y(td[0])) ** 2)
+    intercept = minimize(distance, x0 = np.array([15,np.pi/1.5]) , bounds=[(0, 30),(np.pi/2,np.pi)], method='L-BFGS-B',options={'maxiter': 1000})
+    if missile_x(intercept.x[0],intercept.x[1]) > 0 and missile_y(
+            intercept.x[0],intercept.x[1]) > 0 and 0 <= intercept.fun <= 1:
+        print(f"intercept time is {intercept.x[0]}")
+        print(f"intercept deg is {intercept.x[1]}")
+        return intercept.x[1], missile_x(intercept.x[0],intercept.x[1]), missile_y(intercept.x[0],intercept.x[1])
     else:
-        return None,None,None,None,None,None
-
-
-
-    for deg in np.linspace(np.pi, np.pi / 2, 100):
-        missile_vel = np.array([0.1*np.cos(deg),0.1*np.sin(deg),0])
-        missile_a = np.array([missile_a_mag*np.cos(deg),missile_a_mag*np.sin(deg),0])
-        missile_x = lambda t: 0.5*missile_a[0]*(t-lunched_time)**2+missile_vel[0]*(t-lunched_time)+missile_pos[0]
-        missile_y = lambda t: 0.5 * missile_a[1] * (t-lunched_time) ** 2 + missile_vel[1] * (t-lunched_time) + missile_pos[1]
-        distance = lambda t: np.sqrt(
-            (missile_x(t)-target_x(t))**2 + (missile_y(t)-target_y(t))**2)
-        intercept_t = minimize_scalar(distance,bounds=(0,50), method='bounded')
-        if intercept_t.x > 0 and missile_x(intercept_t.x)>0 and missile_y(intercept_t.x)>0 and 0<=intercept_t.fun<=1:
-            return deg, missile_vel, missile_a, intercept_t.x, missile_x(intercept_t.x),missile_y(intercept_t.x)
-    else:
-        return None,None,None,None,None,None
+        return None,None,None
 
 # Main simulation loop
 while target_pos[1] > 0:
@@ -91,10 +78,11 @@ while target_pos[1] > 0:
 
                             # Try different acceleration magnitudes
                             for a in range(60, 110):
-                                deg, missile_vel,missile_a,hit_time,x,y = intercept_angle(
+                                deg,x,y = intercept_angle(
                                     a, missile_pos, normal_x_target_pos,
                                 normal_y_target_pos, normal_t_target_pos,lunched_time=launched_time)
                                 if deg is not None:
+                                    missile_a = np.array([a*np.cos(deg),a*np.sin(deg)-9.81,0])
                                     break
                             else:
                                 print("can't hit")
@@ -103,7 +91,7 @@ while target_pos[1] > 0:
 
         elif deg is not None:
             missile_pos = missile_pos + missile_vel * dt + time_update
-            missile_vel += missile_a * dt
+            missile_vel = missile_vel + missile_a * dt
             x_missile_pos.append(missile_pos[0])
             y_missile_pos.append(missile_pos[1])
             t_missile_pos.append(missile_pos[2])
