@@ -1,3 +1,5 @@
+from cProfile import label
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
@@ -105,18 +107,19 @@ while target_pos[1] > 0:
     t_target_pos.append(target_pos[3])
     t += dt
 
+fig = plt.figure()
 norm_global = PowerNorm(gamma=1, vmin=0, vmax= max(t_target_pos))
 ax = plt.axes(projection = "3d")
 ax.scatter(x_missile_pos, y_missile_pos, z_missile_pos,  label="Missile Path", c=t_missile_pos, cmap='inferno', s=5, norm=norm_global)
-ax.scatter(x_target_pos, y_target_pos, z_target_pos,  label="Target Path",c=t_target_pos, cmap='inferno', s=5, norm=norm_global)
+p = ax.scatter(x_target_pos, y_target_pos, z_target_pos,  label="Target Path",c=t_target_pos, cmap='inferno', s=5, norm=norm_global)
 ax.scatter(x,y,z,c='k',label="hit point",s=30)
 plt.xlabel("X Position (m)")
 plt.ylabel("Y Position (m)")
 ax.legend()
-#ax.colorbars(label='Time (s)')
 plt.ylim(top = max(y_target_pos)+20,bottom=-20)
 plt.xlim(left=-20)
 plt.title("Target and Missile Trajectories")
+fig.colorbar(p,label="time[s]")
 ax.grid(True)
 plt.show()
 print(t)
