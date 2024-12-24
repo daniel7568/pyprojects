@@ -7,7 +7,7 @@ import pyvista as pv
 
 target_pos = np.array([0, 0.01, 0, 0])
 target_vel = np.array([0.433, 0.25, 0.25, 0])
-missile_pos = np.array([2000, 0, 1000, 0])
+missile_pos = np.array([2000, 0, 500, 0])
 missile_vel = np.array([0, 0, 0, 0])
 grav = np.array([0, -9.81, 0, 0])
 
@@ -105,6 +105,9 @@ while target_pos[1] > 0:
     z_target_pos.append(target_pos[2])
     t_target_pos.append(target_pos[3])
     t += dt
+    if np.sqrt((target_pos[0]-missile_pos[0])**2+(target_pos[1]-missile_pos[1])**2+(target_pos[2]-missile_pos[2])**2)<5:
+        print("break couse hit")
+        break
 
 
 target_points = np.column_stack((x_target_pos,y_target_pos,z_target_pos))
@@ -115,9 +118,9 @@ plotter = pv.Plotter()
 plotter.add_mesh(target_data,color='k')
 plotter.add_mesh(missile_data,color='r')
 plotter.show_grid()
-plotter.add_floor().__doc__
+plotter.add_floor()
+plotter.add_bounding_box()
 plotter.show()
-
 
 #fig = plt.figure()
 #norm_global = PowerNorm(gamma=1, vmin=0, vmax= max(t_target_pos))
