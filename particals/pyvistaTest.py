@@ -35,6 +35,7 @@ target_a = 20
 terminal_speed = 200
 deg1 = None
 missile_a = 0
+count_hit = 0
 
 def intercept_angle(missile_a_mag,missile_pos,target_x,target_y,target_z,time,lunched_time):
     coef_x = np.polyfit(time,target_x,1)
