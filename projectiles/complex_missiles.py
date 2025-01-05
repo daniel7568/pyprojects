@@ -30,6 +30,7 @@ target_a = 20
 terminal_speed = 200
 deg = None
 missile_a = 0
+min_dis = 1000000
 
 def intercept_angle(missile_a_mag,missile_pos,target_x,target_y,time,lunched_time):
     coef_x = np.polyfit(time,target_x,1)
@@ -42,7 +43,7 @@ def intercept_angle(missile_a_mag,missile_pos,target_x,target_y,time,lunched_tim
         (missile_x(td[0],td[1]) - target_x(td[0])) ** 2 + (missile_y(td[0],td[1]) - target_y(td[0])) ** 2)
     intercept = minimize(distance, x0 = np.array([15,np.pi/1.5]) , bounds=[(0, 30),(np.pi/2,np.pi)], method='L-BFGS-B',options={'maxiter': 1000})
     if missile_x(intercept.x[0],intercept.x[1]) > 0 and missile_y(
-            intercept.x[0],intercept.x[1]) > 0 and 0 <= intercept.fun <= 1:
+            intercept.x[0],intercept.x[1]) > 0 and 0 <= intercept.fun <= 2:
         print(f"intercept time is {intercept.x[0]}")
         print(f"intercept deg is {intercept.x[1]}")
         return intercept.x[1], missile_x(intercept.x[0],intercept.x[1]), missile_y(intercept.x[0],intercept.x[1])
@@ -57,14 +58,16 @@ while target_pos[1] > 0:
         a_vector = np.array([target_a * np.sin(v_angle), target_a * np.cos(v_angle), 0])
         target_vel = target_vel + grav * dt + a_vector * dt
     else:
-        target_vel = target_vel + grav * dt + np.random.uniform(low=-5,high=5, size = (1,3))
+        rnd = np.random.uniform(low=-3,high=3, size = 2)
+        rnd_vec = np.array([rnd[0],rnd[1],0])
+        target_vel = target_vel + grav * dt + rnd_vec*dt
         if not launched:
             normal_x_target_pos.append(target_pos[0])
             normal_y_target_pos.append(target_pos[1])
             normal_t_target_pos.append(target_pos[2])
             v_angle = np.arctan2(target_vel[1], target_vel[0])
 
-            if len(normal_x_target_pos) > 5:
+            if len(normal_x_target_pos) > 30:
                 try:
                     coef = np.polyfit(normal_x_target_pos, normal_y_target_pos, 2)
                     if coef[0] < 0:
@@ -90,11 +93,24 @@ while target_pos[1] > 0:
                     pass
 
         elif deg is not None:
+            if np.sqrt((missile_pos[0]-target_pos[0])**2+(missile_pos[1]-target_pos[1])**2)<2:
+                print("missile hit")
+                break
+            if np.sqrt((missile_pos[0]-target_pos[0])**2+(missile_pos[1]-target_pos[1])**2)< min_dis:
+                min_dis = np.sqrt((missile_pos[0]-target_pos[0])**2+(missile_pos[1]-target_pos[1])**2)
+
             missile_pos = missile_pos + missile_vel * dt + time_update
             missile_vel = missile_vel + missile_a * dt
             x_missile_pos.append(missile_pos[0])
             y_missile_pos.append(missile_pos[1])
             t_missile_pos.append(missile_pos[2])
+            deg_new = np.arctan2(missile_pos[1]-target_pos[1],missile_pos[0]-target_pos[0])
+            if deg_new != deg:
+                if deg_new > deg:
+                    missile_a[0] -= 0.00005*np.abs(deg_new - deg)
+                else:
+                    missile_a[0] += 0.00005*np.abs(deg_new - deg)
+
 
     x_target_pos.append(target_pos[0])
     y_target_pos.append(target_pos[1])
@@ -111,8 +127,9 @@ plt.ylabel("Y Position (m)")
 plt.legend()
 plt.colorbar(p,label='Time (s)')
 plt.ylim(top = max(y_target_pos)+20,bottom=-20)
-plt.xlim(left=-20)
+plt.xlim(left=-20, right=5000)
 plt.title("Target and Missile Trajectories")
 plt.grid(True)
 plt.show()
 print(t)
+print(min_dis)

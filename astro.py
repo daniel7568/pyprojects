@@ -1,4 +1,3 @@
-def create(n):
-    return lambda a: a**n
-p4 = create(4)
-print(p4(2))
+import numpy as np
+rnd = np.random.uniform(low = -5, high = 5, size = (3))
+print(rnd)
