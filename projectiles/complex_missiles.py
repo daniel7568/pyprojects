@@ -31,6 +31,7 @@ terminal_speed = 200
 deg = None
 missile_a = 0
 min_dis = 1000000
+target_pos_start = np.array([0,0.01,0])
 
 def intercept_angle(missile_a_mag,missile_pos,target_x,target_y,time,lunched_time):
     coef_x = np.polyfit(time,target_x,1)
@@ -44,14 +45,15 @@ def intercept_angle(missile_a_mag,missile_pos,target_x,target_y,time,lunched_tim
     intercept = minimize(distance, x0 = np.array([15,np.pi/1.5]) , bounds=[(0, 30),(np.pi/2,np.pi)], method='L-BFGS-B',options={'maxiter': 1000})
     if missile_x(intercept.x[0],intercept.x[1]) > 0 and missile_y(
             intercept.x[0],intercept.x[1]) > 0 and 0 <= intercept.fun <= 2:
-        print(f"intercept time is {intercept.x[0]}")
-        print(f"intercept deg is {intercept.x[1]}")
+#        print(f"intercept time is {intercept.x[0]}")
+#        print(f"intercept deg is {intercept.x[1]}")
         return intercept.x[1], missile_x(intercept.x[0],intercept.x[1]), missile_y(intercept.x[0],intercept.x[1])
     else:
         return None,None,None
 
 # Main simulation loop
-def run(num:float ,target_pos=target_pos,target_vel=target_vel,t=t,launched=launched,acurate_count=acurate_count,missile_pos=missile_pos,min_dis=min_dis,missile_vel=missile_vel):
+def run(num:float ,target_pos=target_pos_start,target_vel=np.array([0.433, 0.25, 0]),t=0,launched=False,acurate_count=0,missile_pos=np.array([2000, 0, 0]),min_dis=1000000,missile_vel=np.array([0, 0, 0])):
+    target_pos = np.array([0,0.01,0])
     while target_pos[1] > 0:
         target_pos +=  target_vel * dt + time_update
         if t < 10:
