@@ -51,7 +51,7 @@ def intercept_angle(missile_a_mag,missile_pos,target_x,target_y,time,lunched_tim
         return None,None,None
 
 # Main simulation loop
-def run(num):
+def run(num:float ,target_pos=target_pos,target_vel=target_vel,t=t,launched=launched,acurate_count=acurate_count,missile_pos=missile_pos,min_dis=min_dis,missile_vel=missile_vel):
     while target_pos[1] > 0:
         target_pos +=  target_vel * dt + time_update
         if t < 10:
@@ -94,12 +94,11 @@ def run(num):
                         pass
 
             elif deg is not None:
+                if np.sqrt((missile_pos[0]-target_pos[0])**2+(missile_pos[1]-target_pos[1])**2)< min_dis:
+                    min_dis = np.sqrt((missile_pos[0]-target_pos[0])**2+(missile_pos[1]-target_pos[1])**2)
                 if np.sqrt((missile_pos[0]-target_pos[0])**2+(missile_pos[1]-target_pos[1])**2)<2:
                     print("missile hit")
                     break
-                if np.sqrt((missile_pos[0]-target_pos[0])**2+(missile_pos[1]-target_pos[1])**2)< min_dis:
-                    min_dis = np.sqrt((missile_pos[0]-target_pos[0])**2+(missile_pos[1]-target_pos[1])**2)
-
                 missile_pos = missile_pos + missile_vel * dt + time_update
                 missile_vel = missile_vel + missile_a * dt
                 x_missile_pos.append(missile_pos[0])
@@ -118,20 +117,33 @@ def run(num):
         t_target_pos.append(target_pos[2])
         t += dt
 
-    norm_global = PowerNorm(gamma=1, vmin=0, vmax= max(t_target_pos))
-    plt.figure(figsize=(10, 6))
-    plt.scatter(x_missile_pos, y_missile_pos,  label="Missile Path", c=t_missile_pos, cmap='inferno', s=5, norm=norm_global)
-    p = plt.scatter(x_target_pos, y_target_pos,  label="Target Path",c=t_target_pos, cmap='inferno', s=5, norm=norm_global)
-    plt.scatter(x,y,c='k',label="hit point",s=30)
-    plt.xlabel("X Position (m)")
-    plt.ylabel("Y Position (m)")
-    plt.legend()
-    plt.colorbar(p,label='Time (s)')
-    plt.ylim(top = max(y_target_pos)+20,bottom=-20)
-    plt.xlim(left=-20, right=5000)
-    plt.title("Target and Missile Trajectories")
-    plt.grid(True)
-    plt.show()
-    print(t)
-    print(min_dis)
-for i in np.arange(0.000001)
+#    norm_global = PowerNorm(gamma=1, vmin=0, vmax= max(t_target_pos))
+#    plt.figure(figsize=(10, 6))
+#    plt.scatter(x_missile_pos, y_missile_pos,  label="Missile Path", c=t_missile_pos, cmap='inferno', s=5, norm=norm_global)
+#    p = plt.scatter(x_target_pos, y_target_pos,  label="Target Path",c=t_target_pos, cmap='inferno', s=5, norm=norm_global)
+#    plt.scatter(x,y,c='k',label="hit point",s=30)
+#    plt.xlabel("X Position (m)")
+#    plt.ylabel("Y Position (m)")
+#    plt.legend()
+#    plt.colorbar(p,label='Time (s)')
+#    plt.ylim(top = max(y_target_pos)+20,bottom=-20)
+#    plt.xlim(left=-20, right=5000)
+#    plt.title("Target and Missile Trajectories")
+#    plt.grid(True)
+#    plt.show()
+#    print(t)
+#    print(min_dis)
+    return min_dis
+best = min_dis
+best_i = None
+c = 0
+for i in np.arange(0.000001,0.0001,0.000001):
+   ls = [run(i) for _ in range(100)]
+   avg = sum(ls)/len(ls)
+   c+=1
+   if avg<best:
+       best = avg
+       best_i = i
+print(f"best avg dis is {best} and his i is {best_i}")
+print(ls)
+print(c)
