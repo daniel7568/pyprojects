@@ -1,7 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from scipy.optimize import minimize
-from matplotlib.colors import PowerNorm
+#from matplotlib.colors import PowerNorm
+from multiprocessing import Pool, cpu_count
 
 target_pos = np.array([0, 0.01, 0])
 target_vel = np.array([0.433, 0.25, 0])
@@ -139,13 +140,18 @@ def run(num:float ,target_pos=target_pos_start,target_vel=np.array([0.433, 0.25,
 best = min_dis
 best_i = None
 c = 0
-for i in np.arange(0.000001,0.0001,0.000001):
-   ls = [run(i) for _ in range(100)]
-   avg = sum(ls)/len(ls)
-   c+=1
-   if avg<best:
-       best = avg
-       best_i = i
+def run_wrapper(i):
+    ls = [run(i) for _ in range(100)]
+    avg = sum(ls) / len(ls)
+    return i,avg
+
+i_values = np.arange(0.000001, 0.0001, 0.000001)
+if __name__ == '__main__':
+    num_processes = max(1, cpu_count() // 2)
+    with Pool(processes=num_processes) as pool:
+        results = pool.map(run_wrapper, i_values)
+best_result = min(results, key=lambda x: x[1])
+best_i, best = best_result
 print(f"best avg dis is {best} and his i is {best_i}")
 print(ls)
 print(c)
