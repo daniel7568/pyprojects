@@ -141,17 +141,10 @@ best = min_dis
 best_i = None
 c = 0
 def run_wrapper(i):
-    ls = [run(i) for _ in range(100)]
+    ls = [run(i) for _ in range(20)]
     avg = sum(ls) / len(ls)
     return i,avg
 
-i_values = np.arange(0.000001, 0.0001, 0.000001)
-if __name__ == '__main__':
-    num_processes = max(1, cpu_count() // 2)
-    with Pool(processes=num_processes) as pool:
-        results = pool.map(run_wrapper, i_values)
-best_result = min(results, key=lambda x: x[1])
-best_i, best = best_result
 print(f"best avg dis is {best} and his i is {best_i}")
 print(ls)
 print(c)
