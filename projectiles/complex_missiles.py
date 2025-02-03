@@ -139,12 +139,13 @@ def run(num:float ,target_pos=target_pos_start,target_vel=np.array([0.433, 0.25,
     return min_dis
 best = min_dis
 best_i = None
-c = 0
-def run_wrapper(i):
+c = 0w
+for i in np.arange(0.000001,0.0001,0.000001):
     ls = [run(i) for _ in range(20)]
     avg = sum(ls) / len(ls)
-    return i,avg
-
+    if avg<best:
+        best = avg
+        best_i = i
 print(f"best avg dis is {best} and his i is {best_i}")
 print(ls)
 print(c)
