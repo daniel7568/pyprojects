@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from mpmath import *
-mp.dps = 5000
+mp.dps = 10_000
 
 def read_file(path, column1, column2, column3=None):
     """
@@ -24,11 +24,8 @@ def elong_mp(elongation:str):
     """
     function for converting the elongation angle from string to float
     """
-    print(elongation)
     elongation = elongation[:-10] + elongation[-9:]
-    print(elongation)
     ls = elongation.replace('"','').replace("'",'°').split('°')
-    print(ls)
     return mpmathify(ls[0])+ fdiv(mpmathify(ls[1]),60)  + fdiv(mpmathify(ls[2]),3600)
 def string_to_seconds(date_string, epoch=datetime(1970, 1, 1)):#the function you gave us
     """
@@ -101,9 +98,21 @@ sun_data_delta = [deltaTheta,deltaTime,time]
 omega = [fdiv(thetai,timei) for thetai,timei in zip(deltaTheta,deltaTime)]
 sun_data_omega = [omega,time]
 
-
-plt.scatter(time,omega)
+print(deltaTheta[4])
+#plt.scatter(time,omega)
 #plt.ylim(top = 1.23*10**(-5),bottom = 1.08*10**(-5))
-plt.plot((0,1),(0,1))
-plt.show(block=True)
+#plt.show(block=True)
+def std(ls):
+    avg = fdiv(fsum(ls),len(ls))
+    return sqrt(fdiv(fsum((power(fsub(num,avg),2)) for num in ls),len(ls)))
+def std_norm(ls):
+    avg = fdiv(fsum(ls),len(ls))
+    a = std(ls)
+    return fdiv(a,(fadd(a,fabs(avg))))
+
+with open("results.csv",'w',newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(["before","after"])
+    writer.writerow([std_norm(before_arc_cos),std_norm(deltaTheta)])
+
 
