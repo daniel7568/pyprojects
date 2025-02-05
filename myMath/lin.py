@@ -23,6 +23,11 @@ class Metrix:
             for i in self.body:
                 mtx.append([j * other for j in i])
             return Metrix(mtx)
+        elif isinstance(other,Metrix):
+            mtx = []
+            for row1,row2 in zip(self.body,other.body):
+                mtx.append([i*j for i,j in zip(row1,row2)])
+            return Metrix(mtx)
         elif isinstance(other, Vector):
             ls = []
             for i in range(self.n):
@@ -127,3 +132,9 @@ class Regression:
         ssr = sum([(yi - yi_val) ** 2 for yi, yi_val in zip(y, y_val)])
         sst = sum([(yi - mean) ** 2 for yi in y])
         return 1 - (ssr / sst)
+A = Metrix([[3,7,4],
+            [4,6,2],
+            [8,4,7]])
+A_inv = A.inverse()
+I = A*A_inv
+print(I.body)
