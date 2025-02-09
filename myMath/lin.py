@@ -135,6 +135,25 @@ class Regression:
 A = Metrix([[3,7,4],
             [4,6,2],
             [8,4,7]])
-A_inv = A.inverse()
-I = A*A_inv
-print(I.body)
+from math import sin,cos
+from numpy import linspace,pi
+import matplotlib.pyplot as plt
+
+x_c = []
+y_c = []
+for i in linspace(0,pi,100):
+    x_c.append(cos(i))
+    y_c.append(sin(i))
+
+fig = plt.figure(figsize=(6,6))
+ax = fig.add_subplot()
+ax.plot(x_c,y_c)
+reg = Regression()
+reg.poly(x_c,y_c,2)
+y_v = reg.val(x_c)
+ax.plot(x_c,y_v)
+ax.set_ylim(bottom=-1.2,top=1.2)
+ax.set_xlim(left=-1.2, right=1.2)
+
+fig.
+fig.show()

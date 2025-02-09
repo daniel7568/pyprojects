@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from mpmath import *
-mp.dps = 10_000
+mp.dps = 17
 
 def read_file(path, column1, column2, column3=None):
     """
@@ -110,9 +110,8 @@ def std_norm(ls):
     a = std(ls)
     return fdiv(a,(fadd(a,fabs(avg))))
 
-with open("results.csv",'w',newline='') as f:
+with open("results.csv",'a',newline='') as f:
     writer = csv.writer(f)
-    writer.writerow(["before","after"])
     writer.writerow([std_norm(before_arc_cos),std_norm(deltaTheta)])
 
 
