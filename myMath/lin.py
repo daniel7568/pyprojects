@@ -145,7 +145,7 @@ for i in linspace(0,pi,100):
     x_c.append(cos(i))
     y_c.append(sin(i))
 
-fig = plt.figure(figsize=(6,6))
+fig = plt.figure(figsize=(12,12))
 ax = fig.add_subplot()
 ax.plot(x_c,y_c)
 reg = Regression()
@@ -155,5 +155,5 @@ ax.plot(x_c,y_v)
 ax.set_ylim(bottom=-1.2,top=1.2)
 ax.set_xlim(left=-1.2, right=1.2)
 
-fig.
-fig.show()
+
+plt.show()
