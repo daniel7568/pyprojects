@@ -20,14 +20,16 @@ def min_dist(h,d,H,delta):
 def min_x(h,d,H):
     return fdiv(fmul(d,h),fadd(h,H))
 
-h = 3
-d = 1
-H = 4
+h = 7
+d = 18
+H = 5
 
 lin = linspace(power(10,-100),1,100000)
 x_best = min_x(h,d,H)
 x_ls = [min_dist(h,d,H,delta) for delta in lin ]
-print(lin)
+
+print(f"analytic {home_C_dist(x_best,h)+farm_C_dist(x_best,d,H)}")
+print(f"numeric {home_C_dist(x_ls[-1],h)+farm_C_dist(x_ls[-1],d,H)}")
 
 plt.plot(lin,x_ls, label= "numeric")
 plt.plot((0,1),(x_best,x_best),label = "analytic")
