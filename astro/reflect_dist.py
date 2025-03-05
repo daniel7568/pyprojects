@@ -35,3 +35,19 @@ plt.plot(lin,x_ls, label= "numeric")
 plt.plot((0,1),(x_best,x_best),label = "analytic")
 plt.legend()
 plt.show()
+
+def home_C_dist(x, a,b):
+    return sqrt(fadd(power(b,2),power(fsub(x,a),2)))
+def farm_C_dist(x,c,d):
+    return sqrt(fadd(power((fsub(d,x)),2),power(H,2)))
+def min_dist(h,d,H,delta):
+    dist = lambda x:fadd(home_C_dist(x,h),farm_C_dist(x,d,H))
+    l = 0
+    r = d
+    while fabs(fsub(dist(r),dist(l)))>delta:
+        new = dist(fdiv((fadd(l,r)),2))
+        if dist(r)>new:
+            r = fdiv(fadd(l,r),2)
+        else:
+            l = fdiv(fadd(l,r),2)
+    return fdiv(fadd(l,r),2)
