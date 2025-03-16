@@ -1,5 +1,4 @@
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+import csv
 import numpy as np
 
 G = 6.6743*(10**-11)
@@ -21,25 +20,16 @@ def new_state(p1,v1,m1,p2,v2,m2,dt):
      p2 = p2 + v2*dt
      return p1,v1,p2,v2
 
-def update(frame):
-    body1.set_xdata(x1_ls[:frame])
-    body1.set_ydata(y1_ls[:frame])
-    body2.set_xdata(x2_ls[:frame])
-    body2.set_ydata(y2_ls[:frame])
-    max_border = max(x1_ls[:frame+1]+ y1_ls[:frame+1])*1.2
-    min_border = min(x1_ls[:frame+1] + y1_ls[:frame+1] + y2_ls[0])*1.2
-    ax.set_xlim(left=min_border,right=max_border)
-    ax.set_ylim(bottom=min_border,top=max_border)
-    return body1,body2
 
-dt = 1
+dt = 0.00007
 au = 149_597_870_700
-time_length = (3*365*24*60*60)//dt
-skip = 5000
+time_length = int(((365*24*60*60)//dt)//50)
+skip = 20000
+present = 0.01
 
-p1 = np.array([0,au])
+p1 = np.array([0,au/2])
 v1 = np.array([29_783,0])
-m1 = 5.97219*10**24
+m1 = 1.9891*10**32
 x1_ls = [p1[0]]
 y1_ls = [p1[1]]
 
@@ -56,12 +46,13 @@ for step in range(time_length):
         y1_ls.append(p1[1])
         x2_ls.append(p2[0])
         y2_ls.append(p2[1])
+    if step/time_length >= present:
+        print(f"{present=}")
+        present+=0.01
 
-fig, ax = plt.subplots()
+with open("path_data.csv",'w',newline='') as f:
+    writer = csv.writer(f,delimiter=' ')
+    writer.writerow(["x1","y1","x2","y2"])
+    for x1,y1,x2,y2 in zip(x1_ls,y1_ls,x2_ls,y2_ls):
+        writer.writerow([x1,y1,x2,y2])
 
-body1 = ax.plot(x1_ls[0],y1_ls[0],marker='.')[0]
-body2 = ax.plot(x2_ls[0],y2_ls[0],marker='.')[0]
-
-ani = animation.FuncAnimation(fig=fig,func = update,frames = time_length, interval=0.00001)
-
-plt.show()
