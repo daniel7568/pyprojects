@@ -28,31 +28,29 @@ skip = 20000
 present = 0.01
 
 p1 = np.array([0,au/2])
-v1 = np.array([29_783,0])
+v1 = np.array([29_783*3,0])
 m1 = 1.9891*10**32
-x1_ls = [p1[0]]
-y1_ls = [p1[1]]
 
 p2 = np.array([0,0])
 v2 = np.array([0,0])
 m2 = 1.9891*10**30
-x2_ls = [p2[0]]
-y2_ls = [p2[1]]
 
-for step in range(time_length):
-    p1, v1, p2, v2 = new_state(p1,v1,m1,p2,v2,m2,dt)
-    if step % skip == 0:
-        x1_ls.append(p1[0])
-        y1_ls.append(p1[1])
-        x2_ls.append(p2[0])
-        y2_ls.append(p2[1])
-    if step/time_length >= present:
-        print(f"{present=}")
-        present+=0.01
 
 with open("path_data.csv",'w',newline='') as f:
     writer = csv.writer(f,delimiter=' ')
     writer.writerow(["x1","y1","x2","y2"])
-    for x1,y1,x2,y2 in zip(x1_ls,y1_ls,x2_ls,y2_ls):
-        writer.writerow([x1,y1,x2,y2])
+#    for x1,y1,x2,y2 in zip(x1_ls,y1_ls,x2_ls,y2_ls):
+#        writer.writerow([x1,y1,x2,y2])
+
+
+
+    for step in range(time_length):
+        p1, v1, p2, v2 = new_state(p1,v1,m1,p2,v2,m2,dt)
+        if step % skip == 0:
+            writer.writerow([p1[0],p1[1],p2[0],p2[1]])
+        if step/time_length >= present:
+            print(f"{present=}")
+            present+=0.01
+
+
 
