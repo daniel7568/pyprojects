@@ -22,7 +22,7 @@ with open("path_data.csv", newline='') as f:
    x2_ls = [float(ls[2]) for ls in raw_data]
    y2_ls = [float(ls[3]) for ls in raw_data]
 
-skip = 100
+skip = 1
 
 x1_ls_f = []
 y1_ls_f = []
@@ -40,6 +40,6 @@ fig, ax = plt.subplots()
 body1 = ax.plot(x1_ls_f[0],y1_ls_f[0],marker='.')[0]
 body2 = ax.plot(x2_ls_f[0],y2_ls_f[0],marker='.')[0]
 
-ani = animation.FuncAnimation(fig=fig,func = update,frames = len(x1_ls_f), interval=0.000000001)
+ani = animation.FuncAnimation(fig=fig,func = update,frames = len(x1_ls_f), interval=1, blit=True)
 
 plt.show()
