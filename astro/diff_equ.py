@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from math import e,sin
 
 def calc_next_x(xn,f,dt):
     k1 = f(xn)*dt
@@ -7,7 +8,7 @@ def calc_next_x(xn,f,dt):
     k4 = f(xn + k3)*dt
     return xn + (1/6)*(k1+2*k2+2*k3+k4)
 
-def clac_trajectory(x0,f,tf,dt):
+def calc_trajectory(x0,f,tf,dt):
     x_ls = [x0]
     t_ls = [0]
     for _ in range(int(tf/dt)):
@@ -17,14 +18,19 @@ def clac_trajectory(x0,f,tf,dt):
         x0 = x_new
     return t_ls,x_ls
 
-def plot_trajectories()
 
-x0 = 3
-dt = 0.001
-f = lambda x:x-x**2
-duration = 100
+def plot_trajectories(x_range,f,tf,dt):
+    for xi in x_range:
+        t,x = calc_trajectory(xi,f,tf,dt)
+        plt.plot(t,x)
+#    plt.show()
 
-t,x = clac_tragectory(x0,f,duration,dt)
-plt.plot(t,x)
-plt.plot
+
+x_0 = 3
+dt = 0.0001
+f = lambda x:e**(-x)*sin(x)
+duration = 6
+ls = [i/4 for i in range(-45,21)]
+plot_trajectories(ls,f,duration,dt)
+plt.plot([0,1],[0,0],c='k',lw=1)
 plt.show()
