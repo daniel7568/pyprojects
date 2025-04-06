@@ -21,15 +21,15 @@ def new_state(p1,v1,m1,p2,v2,m2,dt):
      return p1,v1,p2,v2
 
 
-dt = 0.1
+dt = 10
 au = 149_597_870_700
-time_length = int(((365*24*60*60)//dt)//100)
+time_length = int(((365*24*60*60)//dt)*2)
 skip = 200
 present = 0.01
 
-p1 = np.array([0,au/14])
-v1 = np.array([29_783*100,0])
-m1 = 1.9891*10**34
+p1 = np.array([0,au])
+v1 = np.array([29_783,0])
+m1 = 5.972*10**24
 
 p2 = np.array([0,0])
 v2 = np.array([0,0])
