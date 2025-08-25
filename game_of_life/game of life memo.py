@@ -7,8 +7,8 @@ import datetime
 
 
 start = datetime.datetime.now()
-N = 250
-T = 1000
+N = 100
+T = 120
 states = np.empty((T,N+1,N+1))
 grid = np.random.randint(0,2,(N+1,N+1))
 grid[0,:] = 0
@@ -34,7 +34,7 @@ for t in range(1,T):
 end = datetime.datetime.now()
 
 print(f"Time taken: {end - start}")
-# fig = plt.figure()
-# anim = animation.FuncAnimation(fig, new_frame,frames=range(T))
-# anim.save("life_game_animation.mp4","ffmpeg")
-# plt.show()
+fig = plt.figure()
+anim = animation.FuncAnimation(fig, new_frame,frames=range(T))
+#anim.save("life_game_animation.mp4","ffmpeg")
+plt.show()
