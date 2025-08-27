@@ -7,8 +7,14 @@ import numba as nb
 
 start = datetime.datetime.now()
 N = 100
-T = 6000
-grid = np.random.randint(0,2,(N+1,N+1))
+T = 100
+p_0 = 0.9
+
+grid = np.empty((N+1,N+1))
+for i in range(N+1):
+    for j in range(N+1):
+        grid[i,j] = np.random.choice([0,1],p=[p_0,1-p_0])
+
 grid[0,:] = 0
 grid[-1,:] = 0
 grid[:,0] = 0
@@ -41,4 +47,5 @@ end = datetime.datetime.now()
 print(f"Time taken: {end - start}")
 fig = plt.figure()
 anim = animation.FuncAnimation(fig, new_frame,frames=range(T))
-anim.save("life_game_animation.mp4","ffmpeg")
+#anim.save("life_game_animation.mp4","ffmpeg")
+plt.show()
