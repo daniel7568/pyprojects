@@ -1,25 +1,25 @@
-def getQuarter(p):
-    if p[0] == 0 and p[1] == 0:
-        return None
-    elif p[0] > 0:
-        if p[1] > 0:
-            return 1
-        else:
-            return 2
-    elif p[1] > 0:
-        return 4
-    return 3
+# from itertools import groupby
+#
+#
+# def getQuarter(point):
+#     if point[0]>0 and point[1]>0:
+#         return 1
+#     elif point[0]>0 and point[1]<0:
+#         return 2
+#     elif point[0]<0 and point[1]>0:
+#         return 4
+#     elif point[0]<0 and point[1]<0:
+#         return 3
+#     return None
+#
+#
+# def gruopyQuarters(ls):
+#     group = groupby(ls, key=getQuarter)
+#     return dict(group)
+#
+# points = [(2,5),(4,-5),(5,0),(-1,-1),(-4,3)]
+# print(list(gruopyQuarters(points)[1]))
 
-def highish(ls):
-    return max(ls, key=lambda x:x[1])
-
-def QuatersCount(ls):
-    quarters = {1:0, 2:0, 3:0, 4:0}
-    for p in ls:
-        q = getQuarter(p)
-        if q is not None:
-            quarters[q] += 1
-    return quarters
-
-def orderedQuarters(ls):
-    qua
+n = 14
+if 2<n<12:
+    print(f"{n=}")
