@@ -20,6 +20,8 @@
 # points = [(2,5),(4,-5),(5,0),(-1,-1),(-4,3)]
 # print(list(gruopyQuarters(points)[1]))
 
+test = 14
+
 n = 14
 if 2<n<12:
     print(f"{n=}")
