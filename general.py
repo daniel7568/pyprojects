@@ -1,27 +1,15 @@
-# from itertools import groupby
-#
-#
-# def getQuarter(point):
-#     if point[0]>0 and point[1]>0:
-#         return 1
-#     elif point[0]>0 and point[1]<0:
-#         return 2
-#     elif point[0]<0 and point[1]>0:
-#         return 4
-#     elif point[0]<0 and point[1]<0:
-#         return 3
-#     return None
-#
-#
-# def gruopyQuarters(ls):
-#     group = groupby(ls, key=getQuarter)
-#     return dict(group)
-#
-# points = [(2,5),(4,-5),(5,0),(-1,-1),(-4,3)]
-# print(list(gruopyQuarters(points)[1]))
+import matplotlib.pyplot as plt
+import numpy as np
 
-test = 14
-
-n = 14
-if 2<n<12:
-    print(f"{n=}")
+res = 50000
+x = np.linspace(-2.5, 2.5, res)
+N = 1000
+b = 3
+n = np.arange(N)[:, None]
+print(n.shape)
+print(x.shape)
+mid = 0.55**n * np.cos(b**n*np.pi*x)
+print(mid.shape)
+y = np.sum(mid, axis=0)
+plt.plot(x, y)
+plt.show()
